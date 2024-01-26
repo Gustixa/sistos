@@ -1,0 +1,16 @@
+p1
+p2
+
+# Archivos ejecutables
+*.exe
+*.out
+*.app
+
+# Archivos objeto y archivos generados durante la compilación
+*.o
+*.obj
+
+# Archivos generados por herramientas de compilación
+*.dll
+*.so
+*.dylib
