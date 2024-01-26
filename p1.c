@@ -1,3 +1,6 @@
+/**
+ * Programa 1 del ejercicio 1
+*/
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
