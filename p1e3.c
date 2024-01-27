@@ -13,7 +13,9 @@ int main() {
 
   if (pid == 0) {
     // Proceso hijo
-    printf("Mensaje del proceso hijo\n");
+    for (int i = 1; i <= 4000000; ++i) {
+        printf("Conteo en el proceso hijo: %d\n", i);
+    }
   } else {
     // Proceso padre
     while (1) {
