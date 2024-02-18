@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
-
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define N 9
 #define M 9
@@ -120,7 +123,7 @@ int main() {
     char *fileContent = (char *)malloc(sizeof(char) * 81);
     fread(fileContent, sizeof(char), 81, file);
 
-    // Copiar el contenido del archivo a la grilla
+    // Contenido del archivo a la grilla
     for (int i = 0; i < N; i++) {
     for (int j = 0; j < M; j++) {
         sudoku[i][j] = fileContent[i * M + j] - '0';
@@ -140,42 +143,61 @@ int main() {
     fclose(file);
     free(fileContent);
 
-    // Crear hilos para validar en paralelo
+    // Hilos para validar en paralelo
     pthread_t threads[NUM_THREADS];
     ThreadArgs args[NUM_THREADS];
 
-    // Configurar los argumentos para cada hilo
+    // Argumentos para cada hilo
     for (int i = 0; i < NUM_THREADS; i++) {
-    args[i].threadName = (char *)malloc(20);
-    sprintf(args[i].threadName, "Thread %d", i + 1);
+        args[i].threadName = (char *)malloc(20);
+        sprintf(args[i].threadName, "Thread %d", i + 1);
     }
 
-    // Configurar los argumentos para validar las filas
+    // Argumentos para validar las filas
     args[0].start = 0;
     args[0].end = N;
 
-    // Configurar los argumentos para validar las columnas
+    // Argumentos para validar las columnas
     args[1].start = 0;
     args[1].end = M;
 
-    // Configurar los argumentos para validar los subarreglos
+    // Argumentos para validar los subarreglos
     args[2].start = 0;
     args[2].end = N;
+    pid_t pid = getpid();
 
-    // Crear un hilo para validar las filas
-    pthread_create(&threads[0], NULL, validateRow, (void *)&args[0]);
-
-    // Crear un hilo para validar las columnas
-    pthread_create(&threads[1], NULL, validateColumn, (void *)&args[1]);
-
-    // Crear un hilo para validar los subarreglos
-    pthread_create(&threads[2], NULL, validateSubarray, (void *)&args[2]);
-
-    // Esperar a que todos los hilos terminen
-    for (int i = 0; i < NUM_THREADS; i++) {
-    pthread_join(threads[i], NULL);
-    free(args[i].threadName);
+    if(fork() == 0) {
+    char pid_str[10];
+    sprintf(pid_str, "%d", getppid());
+    execlp("ps", "ps", "-p", pid_str, "-lLf", NULL);
     }
+
+    pthread_t thread;
+    pthread_create(&thread, NULL, validateColumn, (void*)&args[1]);
+
+    pthread_join(thread, NULL);
+
+    printf("ID del thread: %ld\n", (long)syscall(SYS_gettid));
+
+    int status;
+    waitpid(-1, &status, 0);
+
+    // Validación de filas
+
+    if(fork() == 0) {
+    char pid_str[10];
+    sprintf(pid_str, "%d", getppid());
+    execlp("ps", "ps", "-p", pid_str, "-lLf", NULL);
+    }
+
+    printf("Sudoku valido? ");
+
+    // Imprimir si es valido
+
+    pthread_join(threads[2], NULL);
+
+    int status2;
+    waitpid(-1, &status2, 0);
 
     return 0;
 }
