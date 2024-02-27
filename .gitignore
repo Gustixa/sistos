@@ -1,0 +1,20 @@
+# Archivos ejecutables
+*.exe
+*.out
+*.app
+
+# Archivos objeto y archivos generados durante la compilación
+*.o
+*.obj
+
+# Archivos generados por herramientas de compilación
+*.dll
+*.so
+*.dylib
+
+# Excluir todos los archivos sin importar la extensión
+*
+# Excepto los archivos con extensión .c
+!*.c
+!*.gitignore
+!*.md
